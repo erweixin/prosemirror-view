@@ -81,9 +81,16 @@ export class EditorView {
       else if ((place as {mount: HTMLElement}).mount) this.mounted = true
     }
 
+    /** props 里面有个 editable 参数是函数，参数 state 来给 editable 赋值 */
     this.editable = getEditable(this)
     updateCursorWrapper(this)
+    /** props 里的 nodeViews 和 markViews 都挂载到 this.nodeViews 上 */
     this.nodeViews = buildNodeViews(this)
+    /**
+     * computeDocDeco(this) 返回的是  [Decoration.node(0, view.state.doc.content.size, attrs)] ，其实就是在在最外层节点增加一个 decoration, 有 someProps 里的 attributes 属性。
+     * 
+     * viewDecorations(this) 返回的是 DecorationGroup.from(found)。someProps 里的 decorations 属性以及可能存在的 cursorWrapper。
+     */
     this.docView = docViewDesc(this.state.doc, computeDocDeco(this), viewDecorations(this), this.dom, this)
 
     this.domObserver = new DOMObserver(this, (from, to, typeOver, added) => readDOMChange(this, from, to, typeOver, added))
@@ -291,6 +298,14 @@ export class EditorView {
   /// value is found. When `f` returns a truthy value, that is
   /// immediately returned. When `f` isn't provided, it is treated as
   /// the identity function (the prop value is returned directly).
+  /**
+   * 对于 propsName 在 _props 属性上有值时 value = _props[propsName]
+   *  如果有 f 参数，返回 f(value) 的返回值。
+   *  如果没有 f 参数，直接返回 _props[propsName]
+   * propsName 不在 _props 属性上会按照 directPlugins、state.plugins 的优先级去获取每个 plugin 的 props[propsName],按照以上逻辑返回值
+   * @param propName 
+   * @param f 
+   */
   someProp<PropName extends keyof EditorProps, Result>(
     propName: PropName,
     f: (value: NonNullable<EditorProps[PropName]>) => Result

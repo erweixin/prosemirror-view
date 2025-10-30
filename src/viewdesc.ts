@@ -769,6 +769,7 @@ export class NodeViewDesc extends ViewDesc {
     let composition = view.composing ? this.localCompositionInfo(view, pos) : null
     let localComposition = composition && composition.pos > -1 ? composition : null
     let compositionInChild = composition && composition.pos < 0
+    // 更新的中介
     let updater = new ViewTreeUpdater(this, localComposition && localComposition.node, view)
     iterDeco(this.node, this.innerDeco, (widget, i, insideNode) => {
       if (widget.spec.marks)
